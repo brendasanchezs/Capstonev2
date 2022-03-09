@@ -40,7 +40,7 @@ JOB_FLOW_OVERRIDES = {
        {
          "Name": "CustomBootStrapAction",
          "ScriptBootstrapAction": {
-           "Path": "s3://data-raw-buckete/xml_package.sh",
+           "Path": "s3://data-raw-bucket/xml_package.sh",
          }
        }
      ],
