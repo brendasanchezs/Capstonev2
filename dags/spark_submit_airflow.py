@@ -15,7 +15,7 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
-    "LogUri": 's3n://{{data-raw-buckete}}',
+    "LogUri": 's3n://{{data-raw-bucket}}',
     "ReleaseLabel": "emr-5.29.0",
     "Applications": [{"Name": "Hadoop"}, {"Name": "Spark"}, {"Name": "Livy"} ], # We want our EMR cluster to have HDFS and Spark
     "Configurations": [
@@ -82,7 +82,7 @@ SPARK_STEPS = [
                 "spark-submit",
                 "--deploy-mode",
                 "client",
-                "s3://data-raw-buckete/transformation-spark.py",
+                "s3://data-raw-bucket/transformation-spark.py",
             ],
         },
     }
