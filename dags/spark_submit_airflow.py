@@ -15,7 +15,7 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
-    "LogUri": 's3n://{{staging-movie-bucket}}',
+    "LogUri": 's3n://{{data-raw-buckete}}',
     "ReleaseLabel": "emr-5.29.0",
     "Applications": [{"Name": "Hadoop"}, {"Name": "Spark"}, {"Name": "Livy"} ], # We want our EMR cluster to have HDFS and Spark
     "Configurations": [
@@ -88,10 +88,7 @@ SPARK_STEPS = [
     }
     
 ]
-# helper function
-def _local_to_s3(filename, key, bucket_name=BUCKET_NAME):
-    s3 = S3Hook()
-    s3.load_file(filename=filename, bucket_name=bucket_name, replace=True, key=key)
+
 
 
 default_args = {
