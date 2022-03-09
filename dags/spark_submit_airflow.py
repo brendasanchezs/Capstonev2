@@ -12,10 +12,6 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
     EmrTerminateJobFlowOperator,
 )
 
-# Configurations
-BUCKET_NAME = "raw-data-movie"  # replace this with your bucket name
-s3_data = ["s3://raw-data-movie/movie_review.csv","s3://raw-data-movie/log_reviews.csv"]
-s3_script = "s3://raw-data-movie/transformations.py"
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
@@ -86,7 +82,7 @@ SPARK_STEPS = [
                 "spark-submit",
                 "--deploy-mode",
                 "client",
-                "s3://raw-data-movie/transformations.py",
+                "s3://data-raw-buckete/transformation-spark.py",
             ],
         },
     }
@@ -129,11 +125,6 @@ step_adder = EmrAddStepsOperator(
     job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
     aws_conn_id="aws_default",
     steps=SPARK_STEPS,
-      params={ # these params are used to fill the paramterized values in SPARK_STEPS json
-        "BUCKET_NAME":"raw-data-movie",
-        "s3_data": ["s3://raw-data-movie/movie_review.csv","s3://raw-data-movie/log_reviews.csv"],
-        "s3_script": "s3://raw-data-movie/transformation.py"
-    },
     dag=dag,
 )
 
