@@ -28,7 +28,7 @@ JOB_FLOW_OVERRIDES = {
                     "PYSPARK_PYTHON": "/usr/bin/python3", # by default EMR uses py2, change it to py3
                     "yarn.log-aggregation-enable": "true",
                     "yarn.log-aggregation.retain-seconds": "-1",
-                    "yarn.nodemanager.remote-app-log-dir": "s3://staging-movie-bucket/logs/"
+                    "yarn.nodemanager.remote-app-log-dir": "s3://data-raw-bucket"
              }
                  }
             ],
