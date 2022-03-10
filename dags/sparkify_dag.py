@@ -342,7 +342,7 @@ stage_events_to_redshift = StageToRedshiftOperator(
     destination_table='staging_events',
     input_file_type='json',
     start_date=datetime(2018, 11, 1),
-    provide_context=True
+    provide_context=False
     
 )
 
