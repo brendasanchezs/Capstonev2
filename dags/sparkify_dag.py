@@ -148,6 +148,7 @@ class LoadFactOperator(BaseOperator):
                  # conn_id = your-connection-name
                  redshift_conn_id="",
                  sql="",
+                 provide_context ="",
                  *args, **kwargs):
 
         super(LoadFactOperator, self).__init__(*args, **kwargs)
@@ -161,9 +162,6 @@ class LoadFactOperator(BaseOperator):
         #self.log.info('LoadFactOperator not implemented yet')
         redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         redshift_hook.run(self.sql)
-
-
-
 
 ################################LOAD DIMENSION#########################
 
@@ -180,6 +178,7 @@ class LoadDimensionOperator(BaseOperator):
                  destination_table="",
                  mode="",
                  sql="",
+                 provide_context = "",
                  *args, **kwargs):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
@@ -212,6 +211,7 @@ class DataQualityOperator(BaseOperator):
                  # Example:
                  # conn_id = your-connection-name
                  redshift_conn_id="",
+     
                  *args, **kwargs):
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
@@ -375,32 +375,8 @@ load_user_dimension_table = LoadDimensionOperator(
     sql=SqlQueries.user_table_insert
 )
 
-load_song_dimension_table = LoadDimensionOperator(
-    task_id='Load_song_dim_table',
-    dag=dag,
-    redshift_conn_id='redshift',
-    destination_table='songs',
-    mode='truncate',
-    sql=SqlQueries.song_table_insert
-)
 
-load_artist_dimension_table = LoadDimensionOperator(
-    task_id='Load_artist_dim_table',
-    dag=dag,
-    redshift_conn_id='redshift',
-    destination_table='artists',
-    mode='truncate',
-    sql=SqlQueries.artist_table_insert
-)
 
-load_time_dimension_table = LoadDimensionOperator(
-    task_id='Load_time_dim_table',
-    dag=dag,
-    redshift_conn_id='redshift',
-    destination_table='time',
-    mode='append',
-    sql=SqlQueries.time_table_insert,
-)
 
 run_quality_checks = DataQualityOperator(
     task_id='Run_data_quality_checks',
@@ -410,7 +386,6 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-start_operator >> create_tables_task 
-create_tables_task >> [stage_events_to_redshift, stage_songs_to_redshift] >> load_songplays_table
-load_songplays_table >> [load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table] >> run_quality_checks
+start_operator >> create_tables_task >> create_tables_task >> [stage_events_to_redshift, stage_songs_to_redshift] >> load_songplays_table
+load_songplays_table >> load_artist_dimension_table >> run_quality_checks
 run_quality_checks >> end_operator
