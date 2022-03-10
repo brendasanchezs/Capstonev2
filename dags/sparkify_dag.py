@@ -56,7 +56,7 @@ dag = DAG('sparkify_elt_dag',
           #schedule_interval=timedelta(days=1),
           #schedule_interval='0 * * * *'
         )
-#########################
+######################### Stage ###############################
 class StageToRedshiftOperator(BaseOperator):
     ui_color = '#358140'
     template_fields = ("s3_key",)
@@ -143,7 +143,36 @@ class StageToRedshiftOperator(BaseOperator):
                                                                    )
         redshift_hook.run(copy_sql)
 
-#########################
+######################### LOAD ###########################
+class LoadFactOperator(BaseOperator):
+
+    ui_color = '#F98866'
+
+    @apply_defaults
+    def __init__(self,
+                 # Define your operators params (with defaults) here
+                 # Example:
+                 # conn_id = your-connection-name
+                 redshift_conn_id="",
+                 sql="",
+                 *args, **kwargs):
+
+        super(LoadFactOperator, self).__init__(*args, **kwargs)
+        # Map params here
+        # Example:
+        # self.conn_id = conn_id
+        self.redshift_conn_id = redshift_conn_id
+        self.sql=sql
+
+    def execute(self, context):
+        #self.log.info('LoadFactOperator not implemented yet')
+        redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        redshift_hook.run(self.sql)
+
+
+
+
+#########################################################
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
 create_tables_task = PostgresOperator(
