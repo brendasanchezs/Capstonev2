@@ -233,89 +233,16 @@ class DataQualityOperator(BaseOperator):
 ###############################SQL QUERIES ####################
 
 class SqlQueries:
-    songplay_table_insert = ("""
-        INSERT INTO songplays (
-            play_id,
-            start_time,
-            user_id,
-            level,
-            song_id,
-            artist_id,
-            session_id,
-            location,
-            user_agent
+ 
+    dim_devices_insert = ("""
+        INSERT INTO dim_devices (
+            device  
         )
-        SELECT
-                md5(events.sessionid || events.start_time) AS playid,
-                events.start_time, 
-                events.userid, 
-                events.level, 
-                songs.song_id, 
-                songs.artist_id, 
-                events.sessionid, 
-                events.location, 
-                events.useragent
-                FROM (SELECT TIMESTAMP 'epoch' + ts/1000 * interval '1 second' AS start_time, *
-            FROM staging_events
-            WHERE page='NextSong') events
-            LEFT JOIN staging_songs songs
-            ON events.song = songs.title
-                AND events.artist = songs.artist_name
-                AND events.length = songs.duration
-    """)
+        SELECT DISTINCT device
+        FROM review_logs 
 
-    user_table_insert = ("""
-         INSERT INTO users (
-            user_id,
-            first_name,
-            last_name,
-            gender,
-            level
-        )
-        SELECT distinct userid, firstname, lastname, gender, level
-        FROM staging_events
-        WHERE page='NextSong'
     """)
-
-    song_table_insert = ("""
-        INSERT INTO songs (
-            song_id,
-            title,
-            artist_id,
-            year,
-            duration
-        )
-        SELECT distinct song_id, title, artist_id, year, duration
-        FROM staging_songs
-    """)
-
-    artist_table_insert = ("""
-        INSERT INTO artists (
-            artist_id,
-            artist_name,
-            artist_location,
-            artist_latitude,
-            artist_longitude    
-        )
-        SELECT distinct artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-        FROM staging_songs
-    """)
-
-    time_table_insert = ("""
-        INSERT INTO time (
-            start_time,
-            hour,
-            day,
-            week,
-            month,
-            year,
-            weekday
-        )
-        SELECT start_time, extract(hour from start_time), extract(day from start_time), extract(week from start_time), 
-               extract(month from start_time), extract(year from start_time), extract(dayofweek from start_time)
-        FROM songplays
-    """)
-
+    
 
 #############################################################
 
@@ -325,7 +252,10 @@ create_tables_task = PostgresOperator(
     task_id='create_tables',
     dag=dag,
     #sql in same directory
-    sql='create_tables.sql',
+    sql= """CREATE TABLE IF NOT EXISTS dim_devices (
+            id_dim_devices INTEGER IDENTITY(1,1),
+            device VARCHAR
+            ); """,
     postgres_conn_id='redshift'
 )
 
@@ -337,7 +267,7 @@ stage_log_reviews_to_redshift = StageToRedshiftOperator(
     s3_bucket='data-raw-bucket',
     s3_key='log_reviews.csv',
     region='us-west-2',
-    destination_table='staging_events',
+    destination_table='log_reviews',
     input_file_type='csv',
     start_date=datetime(2018, 11, 1),
     provide_context = True
@@ -345,21 +275,21 @@ stage_log_reviews_to_redshift = StageToRedshiftOperator(
 )
 
 
-load_songplays_table = LoadFactOperator(
-    task_id='Load_songplays_fact_table',
-    dag=dag,
-    redshift_conn_id='redshift',
-    sql=SqlQueries.songplay_table_insert,
-    provide_context=True
-)
+# load_songplays_table = LoadFactOperator(
+#     task_id='Load_songplays_fact_table',
+#     dag=dag,
+#     redshift_conn_id='redshift',
+#     sql=SqlQueries.songplay_table_insert,
+#     provide_context=True
+# )
 
-load_user_dimension_table = LoadDimensionOperator(
-    task_id='Load_user_dim_table',
+load_device_dimension_table = LoadDimensionOperator(
+    task_id='load_device_dimension_table',
     dag=dag,
     redshift_conn_id='redshift',
     destination_table='users',
     mode='append',
-    sql=SqlQueries.user_table_insert
+    sql=SqlQueries.dim_devices_insert
 )
 
 
@@ -371,4 +301,4 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-start_operator >> create_tables_task >> stage_log_reviews_to_redshift >> load_songplays_table >> load_user_dimension_table >> run_quality_checks >> end_operator
+start_operator >> create_tables_task >> stage_log_reviews_to_redshift >> load_device_dimension_table >> run_quality_checks >> end_operator
