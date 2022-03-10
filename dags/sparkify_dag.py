@@ -11,7 +11,7 @@ from airflow.contrib.hooks.aws_hook import AwsHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
-from load_fact import LoadFactOperator
+
 from load_dimension import LoadDimensionOperator
 from data_quality import DataQualityOperator
 
