@@ -386,6 +386,4 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-start_operator >> create_tables_task >> create_tables_task >> [stage_events_to_redshift, stage_songs_to_redshift] >> load_songplays_table
-load_songplays_table >> load_artist_dimension_table >> run_quality_checks
-run_quality_checks >> end_operator
+start_operator >> create_tables_task >> stage_events_to_redshift >> load_songplays_table >> run_quality_checks >> end_operator
