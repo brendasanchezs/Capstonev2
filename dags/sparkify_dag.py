@@ -12,7 +12,6 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 
-from data_quality import DataQualityOperator
 
 from helpers import SqlQueries
 
