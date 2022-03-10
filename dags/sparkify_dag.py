@@ -5,7 +5,7 @@ from airflow.utils.dates import days_ago
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
-from stage_redshift import StageToRedshiftOperator
+from stage_redshift import *
 from load_fact import LoadFactOperator
 from load_dimension import LoadDimensionOperator
 from data_quality import DataQualityOperator
