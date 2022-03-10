@@ -4,8 +4,12 @@ from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.postgres_operator import PostgresOperator
-from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
-                                LoadDimensionOperator, DataQualityOperator)
+
+from stage_redshift import StageToRedshiftOperator
+from load_fact import LoadFactOperator
+from load_dimension import LoadDimensionOperator
+from data_quality import DataQualityOperator
+
 from helpers import SqlQueries
 
 # AWS_KEY = os.environ.get('AWS_KEY')
