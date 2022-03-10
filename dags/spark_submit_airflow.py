@@ -12,6 +12,8 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
     EmrTerminateJobFlowOperator,
 )
 
+# Configurations
+
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
@@ -78,14 +80,12 @@ SPARK_STEPS = [
                 "spark-submit",
                 "--deploy-mode",
                 "client",
-                "s3://data-raw-bucket/transformation-spark.py",
+                "s3://data-raw-data/transformations.py",
             ],
         },
     }
     
 ]
-
-
 
 
 default_args = {
@@ -96,7 +96,7 @@ default_args = {
 }
 
 dag = DAG(
-    "spark_submit_airflow",
+    "Dag",
     default_args=default_args,
     schedule_interval="0 10 * * *",
     max_active_runs=1,
@@ -119,6 +119,10 @@ step_adder = EmrAddStepsOperator(
     job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
     aws_conn_id="aws_default",
     steps=SPARK_STEPS,
+      params={ # these params are used to fill the paramterized values in SPARK_STEPS json
+        "BUCKET_NAME":"raw-movie-data",
+        "s3_script": "s3://raw-data-bucket/transformations.py"
+    },
     dag=dag,
 )
 
@@ -144,6 +148,5 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
 
 end_data_pipeline = DummyOperator(task_id="end_data_pipeline", dag=dag)
 
-start_data_pipeline >> create_emr_cluster
-create_emr_cluster >> step_adder >> step_checker >> terminate_emr_cluster
+start_data_pipeline >> create_emr_cluster >> step_adder >>step_checker >> terminate_emr_cluster
 terminate_emr_cluster >> end_data_pipeline
