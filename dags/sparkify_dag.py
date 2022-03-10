@@ -84,6 +84,7 @@ class StageToRedshiftOperator(BaseOperator):
                  input_file_type="",
                  delimiter=',',
                  ignore_headers=1,
+                 provide_context ="",
                  *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
@@ -338,7 +339,8 @@ stage_events_to_redshift = StageToRedshiftOperator(
     region='us-west-2',
     destination_table='staging_events',
     input_file_type='json',
-    start_date=datetime(2018, 11, 1)
+    start_date=datetime(2018, 11, 1),
+    provide_context = True
     
 )
 
