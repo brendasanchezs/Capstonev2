@@ -78,13 +78,13 @@ class StageToRedshiftOperator(BaseOperator):
                  # Define your operators params (with defaults) here
                  # Example:
                  # redshift_conn_id=your-connection-name
-                 redshift_conn_id="",
-                 aws_credentials_id="",
-                 s3_bucket="",
-                 s3_key="",
-                 region="",
-                 destination_table="",
-                 input_file_type="",
+                 redshift_conn_id="rsd_default",
+                 aws_credentials_id="aws_default",
+                 s3_bucket="data-raw-bucket",
+                 s3_key="log_movies.csv",
+                 region="us-east-2",
+                 destination_table="fac_table",
+                 input_file_type="csv",
                  delimiter=',',
                  ignore_headers=1,
                  *args, **kwargs):
