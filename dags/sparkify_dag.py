@@ -329,34 +329,21 @@ create_tables_task = PostgresOperator(
     postgres_conn_id='redshift'
 )
 
-stage_events_to_redshift = StageToRedshiftOperator(
-    task_id='Stage_events',
+stage_log_reviews_to_redshift = StageToRedshiftOperator(
+    task_id='Stage_log_review',
     dag=dag,
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
-    s3_bucket='udacity-dend',
-    s3_key='log_data',
+    s3_bucket='data-raw-bucket',
+    s3_key='log_reviews.csv',
     region='us-west-2',
     destination_table='staging_events',
-    input_file_type='json',
+    input_file_type='csv',
     start_date=datetime(2018, 11, 1),
     provide_context = True
     
 )
 
-stage_songs_to_redshift = StageToRedshiftOperator(
-    task_id='Stage_songs',
-    dag=dag,
-    redshift_conn_id='redshift',
-    aws_credentials_id='aws_credentials',
-    s3_bucket='udacity-dend',
-    s3_key='song_data',
-    region='us-west-2',
-    destination_table='staging_songs',
-    input_file_type='json',
-    start_date=datetime(2018, 11, 1),
-    provide_context=True
-)
 
 load_songplays_table = LoadFactOperator(
     task_id='Load_songplays_fact_table',
@@ -375,6 +362,13 @@ load_user_dimension_table = LoadDimensionOperator(
     sql=SqlQueries.user_table_insert
 )
 
+create_tables_task = PostgresOperator(
+    task_id='create_tables',
+    dag=dag,
+    #sql in same directory
+    sql='create_tables.sql',
+    postgres_conn_id='redshift'
+)
 
 run_quality_checks = DataQualityOperator(
     task_id='Run_data_quality_checks',
@@ -384,4 +378,4 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-start_operator >> create_tables >> [stage_songs_to_redshift, stage_events_to_redshift] >> load_songplays_table >> load_user_dimension_table >> run_quality_checks >> end_operator
+start_operator >> create_tables_task >> stage_log_reviews_to_redshift >> load_songplays_table >> load_user_dimension_table >> run_quality_checks >> end_operator
