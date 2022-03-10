@@ -96,7 +96,7 @@ default_args = {
 }
 
 dag = DAG(
-    "Dag2",
+    "Dag_N",
     default_args=default_args,
     schedule_interval="0 10 * * *",
     max_active_runs=1,
