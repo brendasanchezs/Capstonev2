@@ -12,7 +12,6 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 
-from load_dimension import LoadDimensionOperator
 from data_quality import DataQualityOperator
 
 from helpers import SqlQueries
@@ -143,7 +142,7 @@ class StageToRedshiftOperator(BaseOperator):
                                                                    )
         redshift_hook.run(copy_sql)
 
-######################### LOAD ###########################
+######################### LOAD FAC ###########################
 class LoadFactOperator(BaseOperator):
 
     ui_color = '#F98866'
@@ -172,7 +171,74 @@ class LoadFactOperator(BaseOperator):
 
 
 
-#########################################################
+################################LOAD DIMENSION#########################
+
+class LoadDimensionOperator(BaseOperator):
+
+    ui_color = '#80BD9E'
+
+    @apply_defaults
+    def __init__(self,
+                 # Define your operators params (with defaults) here
+                 # Example:
+                 # conn_id = your-connection-name
+                 redshift_conn_id="",
+                 destination_table="",
+                 mode="",
+                 sql="",
+                 *args, **kwargs):
+
+        super(LoadDimensionOperator, self).__init__(*args, **kwargs)
+        # Map params here
+        # Example:
+        # self.conn_id = conn_id
+        self.redshift_conn_id = redshift_conn_id
+        self.sql=sql
+        self.mode=mode
+        self.destination_table=destination_table
+
+    def execute(self, context):
+        #self.log.info('LoadDimensionOperator not implemented yet')
+        redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        if self.mode=='truncate':
+            self.log.info(f"Clearing data from {self.destination_table}")
+            redshift_hook.run(f"DELETE FROM {self.destination_table}")
+        redshift_hook.run(self.sql)
+
+###################################QUALITY#############################3
+
+
+class DataQualityOperator(BaseOperator):
+
+    ui_color = '#89DA59'
+
+    @apply_defaults
+    def __init__(self,
+                 # Define your operators params (with defaults) here
+                 # Example:
+                 # conn_id = your-connection-name
+                 redshift_conn_id="",
+                 *args, **kwargs):
+
+        super(DataQualityOperator, self).__init__(*args, **kwargs)
+        # Map params here
+        # Example:
+        # self.conn_id = conn_id
+        self.redshift_conn_id = redshift_conn_id
+        
+    def execute(self, context):
+        #self.log.info('DataQualityOperator not implemented yet')
+        redshift_hook = PostgresHook(self.redshift_conn_id)
+        for table in ['songplays', 'songs', 'users', 'artists', 'time']:
+            records = redshift_hook.get_records(f"SELECT COUNT(*) FROM {table};")
+            self.log.info(f"Records in {table}\n: {records}")
+            if len(records) < 1 or len(records[0]) < 1 or records[0][0] < 1:
+                self.log.error(f"Data quality check failed. {table} returned no results")
+                raise ValueError(f"Data quality check failed. {table} returned no results")
+            self.log.info(f"Data quality on table {table} check passed with {records[0][0]} records")
+###################################################
+
+
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
 create_tables_task = PostgresOperator(
