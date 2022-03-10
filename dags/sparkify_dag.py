@@ -362,13 +362,6 @@ load_user_dimension_table = LoadDimensionOperator(
     sql=SqlQueries.user_table_insert
 )
 
-create_tables_task = PostgresOperator(
-    task_id='create_tables',
-    dag=dag,
-    #sql in same directory
-    sql='create_tables.sql',
-    postgres_conn_id='redshift'
-)
 
 run_quality_checks = DataQualityOperator(
     task_id='Run_data_quality_checks',
