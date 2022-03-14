@@ -62,7 +62,7 @@ default_args = {
     'end_date': datetime(2018, 11, 30),
     'email_on_failure': True,
     'email_on_retry': False,
-    'retries': 3,
+    'retries': 0,
     'retry_delay': timedelta(minutes=5),
     'catchup': False
   
