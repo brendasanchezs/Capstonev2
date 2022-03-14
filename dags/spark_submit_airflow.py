@@ -80,7 +80,7 @@ SPARK_STEPS = [
                 "spark-submit",
                 "--deploy-mode",
                 "client",
-                "s3://data-raw-data/transformations-spark.py",
+                "s3://data-raw-bucket/transformation-spark.py",
             ],
         },
     }
@@ -120,8 +120,8 @@ step_adder = EmrAddStepsOperator(
     aws_conn_id="aws_default",
     steps=SPARK_STEPS,
       params={ # these params are used to fill the paramterized values in SPARK_STEPS json
-        "BUCKET_NAME":"raw-movie-data",
-        "s3_script": "s3://raw-data-bucket/transformations-spark.py"
+        "BUCKET_NAME":"raw-data-bucket",
+        "s3_script": "s3://raw-data-bucket/transformation-spark.py"
     },
     dag=dag,
 )
