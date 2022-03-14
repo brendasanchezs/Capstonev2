@@ -54,17 +54,30 @@ def insertUSdata(*args, **kwargs):
     return
     
 
+
 default_args = {
-    "owner": "airflow",
-    "start_date": datetime(2020, 10, 17),
-    "email_on_failure": False
+    'owner': 'ashwath',
+    'depends_on_past': False,
+    'start_date': datetime(2018, 11, 1),
+    'end_date': datetime(2018, 11, 30),
+    'email_on_failure': True,
+    'email_on_retry': False,
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'catchup': False
+  
 }
 
-dag = DAG(
-    dag_id = 'LogReview',
-    default_args = default_args,
-    description = 'Desc',
-    schedule_interval='0 6 * * *')
+# hourly: cron is '0 * * * *': https://airflow.apache.org/docs/stable/scheduler.html
+dag = DAG('log_reviews',
+          default_args=default_args,
+          description='Load and transform data in Redshift with Airflow',
+          max_active_runs=1,
+          # https://airflow.apache.org/docs/stable/scheduler.html
+          schedule_interval='0 0 * * *'
+          #schedule_interval=timedelta(days=1),
+          #schedule_interval='0 * * * *'
+
 
 create_table_main = PostgresOperator(
     task_id="create_log",
