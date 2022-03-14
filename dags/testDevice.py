@@ -77,7 +77,7 @@ dag = DAG('log_reviews',
           schedule_interval='0 0 * * *'
           #schedule_interval=timedelta(days=1),
           #schedule_interval='0 * * * *'
-
+         )
 
 create_table_main = PostgresOperator(
     task_id="create_log",
