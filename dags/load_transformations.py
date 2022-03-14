@@ -19,7 +19,7 @@ JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
     "LogUri":"s3://data-raw-bucket/",
     "ReleaseLabel": "emr-5.29.0",
-    "SubnetIds"= ["subnet-03a059a11163dfd56"],
+    "SubnetIds"= "subnet-03a059a11163dfd56",
     "Applications": [{"Name": "Hadoop"}, {"Name": "Spark"}, {"Name": "Livy"} ], # We want our EMR cluster to have HDFS and Spark
     "Configurations": [
         {
