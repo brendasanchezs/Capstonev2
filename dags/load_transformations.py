@@ -13,7 +13,7 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
 )
 
 # Configurations
-
+subnetID = subnetID2
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
@@ -33,7 +33,6 @@ JOB_FLOW_OVERRIDES = {
         }  
     ],
     
-
      "BootstrapActions": [
        {
          "Name": "CustomBootStrapAction",
@@ -51,6 +50,7 @@ JOB_FLOW_OVERRIDES = {
                 "InstanceRole": "MASTER",
                 "InstanceType": "m4.xlarge",
                 "InstanceCount": 1,
+                "Ec2SubnetId": {"subnet"}
             },
             {
                 "Name": "Core - 2",
@@ -58,6 +58,7 @@ JOB_FLOW_OVERRIDES = {
                 "InstanceRole": "CORE",
                 "InstanceType": "m4.xlarge",
                 "InstanceCount": 2,
+                 "Ec2SubnetId": {"subnet"}
             },
         ],
         "KeepJobFlowAliveWhenNoSteps": True,
@@ -122,6 +123,7 @@ create_emr_cluster = EmrCreateJobFlowOperator(
 #       params={ # these params are used to fill the paramterized values in SPARK_STEPS json
 #         "BUCKET_NAME":"data-raw-bucket",
 #         "s3_script": "s3://data-raw-bucket/transformation-spark.py"
+          "subnet": subnetID
 #     },
 #     dag=dag,
 # )
