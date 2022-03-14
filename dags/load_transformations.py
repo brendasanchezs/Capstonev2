@@ -114,31 +114,31 @@ create_emr_cluster = EmrCreateJobFlowOperator(
     dag=dag,
 )
 
-# # Add your steps to the EMR cluster
-# step_adder = EmrAddStepsOperator(
-#      task_id="transformation_movies",
-#     job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
-#     aws_conn_id="aws_default",
-#     steps=SPARK_STEPS,
-#       params={ # these params are used to fill the paramterized values in SPARK_STEPS json
-#         "BUCKET_NAME":"data-raw-bucket",
-#         "s3_script": "s3://data-raw-bucket/transformation-spark.py"
+# Add your steps to the EMR cluster
+step_adder = EmrAddStepsOperator(
+     task_id="transformation_movies",
+    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
+    aws_conn_id="aws_default",
+    steps=SPARK_STEPS,
+      params={ # these params are used to fill the paramterized values in SPARK_STEPS json
+        "BUCKET_NAME":"data-raw-bucket",
+        "s3_script": "s3://data-raw-bucket/transformation-spark.py"
    
-#     },
-#     dag=dag,
-# )
+    },
+    dag=dag,
+)
 
-# last_step = len(SPARK_STEPS) - 1
-# # wait for the steps to complete
-# step_checker = EmrStepSensor(
-#     task_id="watch_step",
-#     job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
-#     step_id="{{ task_instance.xcom_pull(task_ids='transformation_movies', key='return_value')["
-#     + str(last_step)
-#     + "] }}",
-#     aws_conn_id="aws_default",
-#     dag=dag,
-# )
+last_step = len(SPARK_STEPS) - 1
+# wait for the steps to complete
+step_checker = EmrStepSensor(
+    task_id="watch_step",
+    job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
+    step_id="{{ task_instance.xcom_pull(task_ids='transformation_movies', key='return_value')["
+    + str(last_step)
+    + "] }}",
+    aws_conn_id="aws_default",
+    dag=dag,
+)
 
 # Terminate the EMR cluster
 terminate_emr_cluster = EmrTerminateJobFlowOperator(
@@ -148,7 +148,11 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
     dag=dag,
 )
 
-end_data_pipeline = DummyOperator(task_id="end_data_pipeline", dag=dag)
+end_data_pipeline = DummyOperator(task_id="End", dag=dag)
 
-start_data_pipeline >> create_emr_cluster >> terminate_emr_cluster
+end_data_pipeline = DummyOperator(task_id="Init", dag=dag)
+
+s3ToPostgres = DummyOperator(task_id="S3ToPostgres", dag=dag)
+
+start_data_pipeline >> [create_emr_cluster, s3ToPostgres] >> step_adder >> last_step >> terminate_emr_cluster >> end_data_pipeline
 terminate_emr_cluster >> end_data_pipeline
