@@ -120,7 +120,7 @@ step_adder = EmrAddStepsOperator(
     aws_conn_id="aws_default",
     steps=SPARK_STEPS,
       params={ # these params are used to fill the paramterized values in SPARK_STEPS json
-        "BUCKET_NAME":"raw-data-bucket",
+        "BUCKET_NAME":"data-raw-bucket",
         "s3_script": "s3://data-raw-bucket/transformation-spark.py"
     },
     dag=dag,
