@@ -1,6 +1,5 @@
 import airflow
 from airflow import DAG
-from airflow.operators import PythonOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.hooks.aws_hook import AwsHook
 from airflow.hooks.postgres_hook import PostgresHook
