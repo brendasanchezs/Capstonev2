@@ -14,7 +14,6 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
 )
 
 # Configurations
-subnet = Variable.get("subnet")
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
@@ -51,7 +50,7 @@ JOB_FLOW_OVERRIDES = {
                 "InstanceRole": "MASTER",
                 "InstanceType": "m4.xlarge",
                 "InstanceCount": 1,
-                "Ec2SubnetId": {"subnet"}
+             
             },
             {
                 "Name": "Core - 2",
@@ -59,7 +58,7 @@ JOB_FLOW_OVERRIDES = {
                 "InstanceRole": "CORE",
                 "InstanceType": "m4.xlarge",
                 "InstanceCount": 2,
-                 "Ec2SubnetId": {"subnet"}
+             
             },
         ],
         "KeepJobFlowAliveWhenNoSteps": True,
