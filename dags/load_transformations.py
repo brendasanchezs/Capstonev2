@@ -152,5 +152,4 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
 
     s3ToPostgres = DummyOperator(task_id="S3ToPostgres", dag=dag)
 
-start_data_pipeline >> [create_emr_cluster, s3ToPostgres] >> step_adder >> terminate_emr_cluster
-terminate_emr_cluster >> end_data_pipeline
+start_data_pipeline >> create_emr_cluster >> step_adder >> terminate_emr_cluster >> end_data_pipeline
