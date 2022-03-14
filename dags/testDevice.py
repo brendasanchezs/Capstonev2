@@ -71,7 +71,7 @@ dag = DAG(
     schedule_interval='0 6 * * *')
 
 create_table_main = PostgresOperator(
-    task_id="create_lob",
+    task_id="create_log",
     dag=dag,
     postgres_conn_id="redshift",
     sql=""" CREATE TABLE IF NOT EXISTS log_review (
@@ -83,7 +83,7 @@ create_table_main = PostgresOperator(
             phone_number VARCHAR,
             browser VARCHAR);""")
             
-create_table_us = PostgresOperator(
+create_table_device = PostgresOperator(
     task_id="create_device",
     dag=dag,
     postgres_conn_id="redshift",
@@ -101,11 +101,11 @@ MovetoRedShift = PythonOperator(
     dag=dag
 )
 
-insert_USdata = PythonOperator(
+insert_Devices = PythonOperator(
     task_id="insert_Devices",
     provide_context=True,
     python_callable=insertUSdata,
     dag=dag
 )
 
-create_table_main >> MovetoRedShift >> insert_USdata 
+create_table_main >> create_table_device >> MovetoRedShift >> insert_Devices >> create_device
