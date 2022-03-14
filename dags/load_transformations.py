@@ -147,9 +147,7 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
     aws_conn_id="aws_default",
     dag=dag,
 )
-
-    end_data_pipeline = DummyOperator(task_id="End", dag=dag)
-
-    s3ToPostgres = DummyOperator(task_id="S3ToPostgres", dag=dag)
+end_data_pipeline = DummyOperator(task_id="End", dag=dag)
+s3ToPostgres = DummyOperator(task_id="S3ToPostgres", dag=dag)
 
 start_data_pipeline >> create_emr_cluster >> step_adder >> terminate_emr_cluster >> end_data_pipeline
