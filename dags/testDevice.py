@@ -55,13 +55,10 @@ def insertUSdata(*args, **kwargs):
     
 
 default_args = {
-    'owner': 'lzhou519',
-    'depends_on_past': False,
-    'start_date': datetime(2020, 1, 24),
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=1)
+    owner”: “airflow”,
+    “start_date”: datetime(2020, 10, 17),
+    “email”: [“airflow@airflow.com”],
+    “email_on_failure”: False
 }
 
 dag = DAG(
