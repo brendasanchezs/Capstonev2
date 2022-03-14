@@ -13,7 +13,7 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
 )
 
 # Configurations
-subnetID = subnetID2
+subnet = subnetID2
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
@@ -123,7 +123,7 @@ create_emr_cluster = EmrCreateJobFlowOperator(
 #       params={ # these params are used to fill the paramterized values in SPARK_STEPS json
 #         "BUCKET_NAME":"data-raw-bucket",
 #         "s3_script": "s3://data-raw-bucket/transformation-spark.py"
-          "subnet": subnetID
+   
 #     },
 #     dag=dag,
 # )
