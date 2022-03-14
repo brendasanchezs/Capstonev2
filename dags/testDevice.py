@@ -108,4 +108,4 @@ insert_Devices = PythonOperator(
     dag=dag
 )
 
-create_table_main >> create_table_device >> MovetoRedShift >> insert_Devices >> create_device
+create_table_main >> create_table_device >> MovetoRedShift >> insert_Devices
