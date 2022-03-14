@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import boto3
+from airflow.models import Variable
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.hooks.S3_hook import S3Hook
