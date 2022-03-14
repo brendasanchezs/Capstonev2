@@ -128,17 +128,17 @@ step_adder = EmrAddStepsOperator(
     dag=dag,
 )
 
-last_step = len(SPARK_STEPS) - 1
-# wait for the steps to complete
-step_checker = EmrStepSensor(
-    task_id="watch_step",
-    job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
-    step_id="{{ task_instance.xcom_pull(task_ids='transformation_movies', key='return_value')["
-    + str(last_step)
-    + "] }}",
-    aws_conn_id="aws_default",
-    dag=dag,
-)
+# last_step = len(SPARK_STEPS) - 1
+# # wait for the steps to complete
+# step_checker = EmrStepSensor(
+#     task_id="watch_step",
+#     job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
+#     step_id="{{ task_instance.xcom_pull(task_ids='transformation_movies', key='return_value')["
+#     + str(last_step)
+#     + "] }}",
+#     aws_conn_id="aws_default",
+#     dag=dag,
+# )
 
 # Terminate the EMR cluster
 terminate_emr_cluster = EmrTerminateJobFlowOperator(
@@ -154,5 +154,5 @@ end_data_pipeline = DummyOperator(task_id="Init", dag=dag)
 
 s3ToPostgres = DummyOperator(task_id="S3ToPostgres", dag=dag)
 
-start_data_pipeline >> [create_emr_cluster, s3ToPostgres] >> step_adder >> last_step >> terminate_emr_cluster >> end_data_pipeline
+start_data_pipeline >> [create_emr_cluster, s3ToPostgres] >> step_adder >> terminate_emr_cluster >> end_data_pipeline
 terminate_emr_cluster >> end_data_pipeline
