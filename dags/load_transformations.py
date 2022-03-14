@@ -13,7 +13,7 @@ from airflow.contrib.operators.emr_terminate_job_flow_operator import (
 )
 
 # Configurations
-subnet = subnetID2
+subnet = Varible.get(subnetID2)
 
 JOB_FLOW_OVERRIDES = {
     "Name": "Movie review classifier",
