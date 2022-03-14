@@ -103,7 +103,7 @@ dag = DAG(
     max_active_runs=1,
 )
 
-start_data_pipeline = DummyOperator(task_id="start_data_pipeline", dag=dag)
+start_data_pipeline = DummyOperator(task_id="Init", dag=dag)
 
 # Create an EMR cluster
 create_emr_cluster = EmrCreateJobFlowOperator(
@@ -155,4 +155,4 @@ end_data_pipeline = DummyOperator(task_id="Init", dag=dag)
 s3ToPostgres = DummyOperator(task_id="S3ToPostgres", dag=dag)
 
 start_data_pipeline >> [create_emr_cluster, s3ToPostgres] >> step_adder >> terminate_emr_cluster >> end_data_pipeline
-terminate_emr_cluster >> end_data_pipeline
+end_data_pipeline >> terminate_emr_cluster >> end_data_pipeline
