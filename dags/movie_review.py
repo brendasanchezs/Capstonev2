@@ -115,7 +115,18 @@ create_emr_cluster = EmrCreateJobFlowOperator(
 
 # Add your steps to the EMR cluster
 step_adder = EmrAddStepsOperator(
-     task_id="transformation_movies",
+    task_id="transformation_movies",
+    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
+    aws_conn_id="aws_default",
+    steps=SPARK_STEPS,
+      params={ # these params are used to fill the paramterized values in SPARK_STEPS json
+        "BUCKET_NAME":"raw-movie-data",
+        "s3_script": "s3://raw-movie-data/transformations.py"
+    },
+    dag=dag,
+)
+step_adder2 = EmrAddStepsOperator(
+    task_id="transformation_log_reviews",
     job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
     aws_conn_id="aws_default",
     steps=SPARK_STEPS,
@@ -148,5 +159,5 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
 
 end_data_pipeline = DummyOperator(task_id="end_data_pipeline", dag=dag)
 
-start_data_pipeline >> create_emr_cluster >> step_adder >>step_checker >> terminate_emr_cluster
+start_data_pipeline >> create_emr_cluster >> [step_adder, step_adder2] >>step_checker >> terminate_emr_cluster
 terminate_emr_cluster >> end_data_pipeline
