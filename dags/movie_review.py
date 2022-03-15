@@ -156,19 +156,29 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
     aws_conn_id="aws_default",
     dag=dag,
 )
-s3_to_posgres = EmrTerminateJobFlowOperator(
-    task_id="Postgres_to_S3",
-    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
-    aws_conn_id="aws_default",
-    dag=dag,
-)
-create_table = EmrTerminateJobFlowOperator(
-    task_id="create_table_postgres",
-    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
-    aws_conn_id="aws_default",
-    dag=dag,
-)
+task1 = PostgresOperator(task_id = 'create_table_user_purchase',
+                        sql="""
+                        CREATE TABLE IF NOT EXISTS cities (    
+                            LatD INTEGER,
+                            LatM INTEGER,
+                            LatS INTEGER,
+                            NS VARCHAR(255),
+                            LonD INTEGER,
+                            LonM INTEGER,
+                            LonS INTEGER,
+                            EW VARCHAR(255), 
+                            City VARCHAR(255),
+                            State VARCHAR(255));
+                            """,
+                            postgres_conn_id= 'postgres_default', 
+                            autocommit=True,
+                            dag= dag)
+
+task2 = PythonOperator(task_id='csv_to_database_postgres',
+                   provide_context=True,
+                   python_callable=csv_to_postgres,
+                   dag=dag)
 
 end_data_pipeline = DummyOperator(task_id="End", dag=dag)
 
-start_data_pipeline >> create_table >> s3_to_posgres >> create_emr_cluster >> [step_adder, step_adder2] >>step_checker >> terminate_emr_cluster >> end_data_pipeline
+start_data_pipeline >> task1 >> task2 >> create_emr_cluster >> [step_adder, step_adder2] >>step_checker >> terminate_emr_cluster >> end_data_pipeline
