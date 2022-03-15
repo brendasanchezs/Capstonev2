@@ -1,3 +1,7 @@
+import airflow
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy_operator import DummyOperator
 start = DummyOperator(task_id="start", dag=dag) 
 
 create_table_main = DummyOperator(task_id="create_main_tables", dag=dag)
