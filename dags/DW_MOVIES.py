@@ -12,7 +12,7 @@ default_args = {
 }
 
 dag = DAG(
-    "MOVIE_REVIEWS_DAG",
+    "DW_MOVIES",
     default_args=default_args,
     schedule_interval="0 10 * * *",
     max_active_runs=1,
