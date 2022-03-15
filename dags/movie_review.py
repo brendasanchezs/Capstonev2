@@ -162,6 +162,12 @@ s3_to_posgres = EmrTerminateJobFlowOperator(
     aws_conn_id="aws_default",
     dag=dag,
 )
+create_table = EmrTerminateJobFlowOperator(
+    task_id="create_table_postgres",
+    job_flow_id="{{ task_instance.xcom_pull(task_ids='create_emr_cluster', key='return_value') }}",
+    aws_conn_id="aws_default",
+    dag=dag,
+)
 
 end_data_pipeline = DummyOperator(task_id="End", dag=dag)
 
