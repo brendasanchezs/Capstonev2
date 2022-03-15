@@ -140,7 +140,7 @@ step_adder2 = EmrAddStepsOperator(
 last_step = len(SPARK_STEPS) - 1
 # wait for the steps to complete
 step_checker = EmrStepSensor(
-    task_id="watch_step",
+    task_id="step_sensor",
     job_flow_id="{{ task_instance.xcom_pull('create_emr_cluster', key='return_value') }}",
     step_id="{{ task_instance.xcom_pull(task_ids='transformation_movies', key='return_value')["
     + str(last_step)
