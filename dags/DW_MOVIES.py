@@ -3,14 +3,23 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 
-dag = DAG('DW_Movies',
-          description='Load and transform data in Redshift with Airflow',
-          max_active_runs=1,
-          # https://airflow.apache.org/docs/stable/scheduler.html
-          schedule_interval='0 0 * * *'
-          #schedule_interval=timedelta(days=1),
-          #schedule_interval='0 * * * *'
-         )
+
+default_args = {
+    "owner": "airflow",
+    "start_date": datetime(2020, 10, 17),
+    "email": ["airflow@airflow.com"],
+    "email_on_failure": False
+}
+
+dag = DAG(
+    "MOVIE_REVIEWS_DAG",
+    default_args=default_args,
+    schedule_interval="0 10 * * *",
+    max_active_runs=1,
+)
+
+
+
 start = DummyOperator(task_id="start", dag=dag) 
 
 create_table_main = DummyOperator(task_id="create_main_tables", dag=dag)
