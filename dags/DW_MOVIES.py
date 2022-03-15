@@ -4,7 +4,6 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 
 dag = DAG('DW_Movies',
-          default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
           max_active_runs=1,
           # https://airflow.apache.org/docs/stable/scheduler.html
