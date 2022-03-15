@@ -102,7 +102,7 @@ dag = DAG(
     max_active_runs=1,
 )
 
-start_data_pipeline = DummyOperator(task_id="start_data_pipeline", dag=dag)
+start_data_pipeline = DummyOperator(task_id="Init", dag=dag)
 
 # Create an EMR cluster
 create_emr_cluster = EmrCreateJobFlowOperator(
@@ -157,6 +157,6 @@ terminate_emr_cluster = EmrTerminateJobFlowOperator(
     dag=dag,
 )
 
-end_data_pipeline = DummyOperator(task_id="end_data_pipeline", dag=dag)
+end_data_pipeline = DummyOperator(task_id="End", dag=dag)
 
 start_data_pipeline >> create_emr_cluster >> [step_adder, step_adder2] >>step_checker >> terminate_emr_cluster >> end_data_pipeline
