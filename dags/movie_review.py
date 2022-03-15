@@ -11,6 +11,23 @@ from airflow.contrib.sensors.emr_step_sensor import EmrStepSensor
 from airflow.contrib.operators.emr_terminate_job_flow_operator import (
     EmrTerminateJobFlowOperator,
 )
+# another fuctions
+def file_path(relative_path):
+    dir = os.path.dirname(os.path.abspath(__file__))
+    split_path = relative_path.split("/")
+    new_path = os.path.join(dir, *split_path)
+    return new_path
+
+def csv_to_postgres():
+    #Open Postgres Connection
+    pg_hook = PostgresHook(postgres_conn_id='postgres_default')
+    get_postgres_conn = PostgresHook(postgres_conn_id='postgres_default').get_conn()
+    curr = get_postgres_conn.cursor()
+    # CSV loading to table
+    with open(file_path("/custom_modules/assets/cities_clean.csv"), "r") as f:
+        next(f)
+        curr.copy_from(f, 'cities', sep=",")
+        get_postgres_conn.commit()
 
 # Configurations
 
