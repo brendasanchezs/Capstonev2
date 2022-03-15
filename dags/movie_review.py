@@ -1,3 +1,15 @@
+import airflow
+import os
+import psycopg2
+from airflow import DAG
+from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy_operator import DummyOperator
+from airflow.hooks.postgres_hook import PostgresHook
+from datetime import timedelta
+from datetime import datetime
+
+#
 from datetime import datetime, timedelta
 
 from airflow import DAG
