@@ -171,4 +171,4 @@ create_table = EmrTerminateJobFlowOperator(
 
 end_data_pipeline = DummyOperator(task_id="End", dag=dag)
 
-start_data_pipeline >> s3_to_posgres >> create_emr_cluster >> [step_adder, step_adder2] >>step_checker >> terminate_emr_cluster >> end_data_pipeline
+start_data_pipeline >> create_table >> s3_to_posgres >> create_emr_cluster >> [step_adder, step_adder2] >>step_checker >> terminate_emr_cluster >> end_data_pipeline
